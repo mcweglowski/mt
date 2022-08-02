@@ -1,0 +1,15 @@
+C:\Users\mawg\source\repos\mt\Sample.Components\bin\Debug\net6.0\Sample.Components.deps.json
+C:\Users\mawg\source\repos\mt\Sample.Components\bin\Debug\net6.0\Sample.Components.dll
+C:\Users\mawg\source\repos\mt\Sample.Components\bin\Debug\net6.0\Sample.Components.pdb
+C:\Users\mawg\source\repos\mt\Sample.Components\bin\Debug\net6.0\Sample.Contracts.dll
+C:\Users\mawg\source\repos\mt\Sample.Components\bin\Debug\net6.0\Sample.Contracts.pdb
+C:\Users\mawg\source\repos\mt\Sample.Components\obj\Debug\net6.0\Sample.Components.csproj.AssemblyReference.cache
+C:\Users\mawg\source\repos\mt\Sample.Components\obj\Debug\net6.0\Sample.Components.GeneratedMSBuildEditorConfig.editorconfig
+C:\Users\mawg\source\repos\mt\Sample.Components\obj\Debug\net6.0\Sample.Components.AssemblyInfoInputs.cache
+C:\Users\mawg\source\repos\mt\Sample.Components\obj\Debug\net6.0\Sample.Components.AssemblyInfo.cs
+C:\Users\mawg\source\repos\mt\Sample.Components\obj\Debug\net6.0\Sample.Components.csproj.CoreCompileInputs.cache
+C:\Users\mawg\source\repos\mt\Sample.Components\obj\Debug\net6.0\Sample.Components.csproj.CopyComplete
+C:\Users\mawg\source\repos\mt\Sample.Components\obj\Debug\net6.0\Sample.Components.dll
+C:\Users\mawg\source\repos\mt\Sample.Components\obj\Debug\net6.0\refint\Sample.Components.dll
+C:\Users\mawg\source\repos\mt\Sample.Components\obj\Debug\net6.0\Sample.Components.pdb
+C:\Users\mawg\source\repos\mt\Sample.Components\obj\Debug\net6.0\ref\Sample.Components.dll
