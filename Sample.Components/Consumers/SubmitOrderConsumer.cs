@@ -24,6 +24,8 @@ namespace Sample.Components.Consumers
 
             if (context.Message.CustomerNumber.Contains("TEST"))
             {
+                _logger.LogDebug($"Order Rejected: {context.Message.OrderId}");
+                
                 await context.RespondAsync<OrderSubmissionRejected>(new
                 {
                     OrderId = context.Message.OrderId,
@@ -34,6 +36,8 @@ namespace Sample.Components.Consumers
 
                 return;
             }
+
+            _logger.LogDebug($"Order Accepted: {context.Message.OrderId}");
 
             await context.RespondAsync<OrderSubmissionAccepted>(new 
             { 
