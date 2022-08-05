@@ -20,6 +20,7 @@ namespace Sample.API.Controllers
         [HttpPost()]
         public async Task<IActionResult> Post(Guid id, string customerNumber)
         {
+            _logger.LogDebug($"Submit order: {id}");
             var (accepted, rejected) = await _submitOrderRequestClient.GetResponse<OrderSubmissionAccepted, OrderSubmissionRejected>(new
             {
                 OrderId = id,
@@ -29,11 +30,15 @@ namespace Sample.API.Controllers
 
             if (accepted.IsCompletedSuccessfully)
             {
+                _logger.LogDebug($"Order: {id} accepted");
+
                 var response = await accepted;
                 return Accepted(response);
             }
             else
             {
+                _logger.LogDebug($"Order: {id} rejected");
+
                 var response = await rejected;
 
                 return BadRequest(response.Message);

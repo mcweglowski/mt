@@ -1,5 +1,6 @@
 using MassTransit;
-using Sample.Components.Consumers;
+using MassTransit.Definition;
+using Microsoft.Extensions.DependencyInjection.Extensions;
 using Sample.Contracts;
 
 namespace Sample.API
@@ -9,12 +10,16 @@ namespace Sample.API
         public static void Main(string[] args)
         {
             var builder = WebApplication.CreateBuilder(args);
-            
-            builder.Services.AddMediator(cfg =>
+
+            builder.Services.TryAddSingleton(KebabCaseEndpointNameFormatter.Instance);
+
+            builder.Services.AddMassTransit(cfg =>
             {
-                cfg.AddConsumer<SubmitOrderConsumer>();
+                cfg.AddBus(provider => Bus.Factory.CreateUsingRabbitMq());
                 cfg.AddRequestClient<SubmitOrder>();
             });
+
+            builder.Services.AddMassTransitHostedService();
 
             // Add services to the container.
 
