@@ -35,6 +35,13 @@ namespace Sample.Components.Consumers
 
             _logger.LogDebug($"Order Accepted: {context.Message.OrderId}");
 
+            await context.Publish<OrderSubmitted>(new 
+            {
+                OrderId = context.Message.OrderId,
+                Timestamp = context.Message.Timestamp,
+                CustomerNumber = context.Message.CustomerNumber,
+            });
+
             if (context.RequestId != null)
                 await context.RespondAsync<OrderSubmissionAccepted>(new 
                 { 
