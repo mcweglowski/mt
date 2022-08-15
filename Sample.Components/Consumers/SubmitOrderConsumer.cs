@@ -21,25 +21,27 @@ namespace Sample.Components.Consumers
             {
                 _logger.LogDebug($"Order Rejected: {context.Message.OrderId}");
                 
-                await context.RespondAsync<OrderSubmissionRejected>(new
-                {
-                    OrderId = context.Message.OrderId,
-                    Timestamp = InVar.Timestamp,
-                    CustomerNumber = context.Message.CustomerNumber,
-                    Reason = $"Test customer cannto submit orders: {context.Message.CustomerNumber}"
-                });
+                if (context.RequestId != null)
+                    await context.RespondAsync<OrderSubmissionRejected>(new
+                    {
+                        OrderId = context.Message.OrderId,
+                        Timestamp = InVar.Timestamp,
+                        CustomerNumber = context.Message.CustomerNumber,
+                        Reason = $"Test customer cannto submit orders: {context.Message.CustomerNumber}"
+                    });
 
                 return;
             }
 
             _logger.LogDebug($"Order Accepted: {context.Message.OrderId}");
 
-            await context.RespondAsync<OrderSubmissionAccepted>(new 
-            { 
-                context.Message.OrderId, 
-                InVar.Timestamp,
-                context.Message.CustomerNumber
-            });
+            if (context.RequestId != null)
+                await context.RespondAsync<OrderSubmissionAccepted>(new 
+                { 
+                    context.Message.OrderId, 
+                    InVar.Timestamp,
+                    context.Message.CustomerNumber
+                });
         }
     }
 }
