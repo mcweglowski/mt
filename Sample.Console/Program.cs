@@ -32,7 +32,7 @@ namespace Sample.Service
 
                     services.AddMassTransit(cfg => {
                         cfg.AddConsumersFromNamespaceContaining<SubmitOrderConsumer>();
-                        cfg.AddSagaStateMachine<OrderStateMachine, OrderState>()
+                        cfg.AddSagaStateMachine<OrderStateMachine, OrderState>(typeof(OrderStsteMachnieDefinition))
                             .RedisRepository();
                         cfg.AddBus(ConfigureBus);
                     });
