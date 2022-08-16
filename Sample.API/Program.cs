@@ -17,6 +17,7 @@ namespace Sample.API
             {
                 cfg.AddBus(provider => Bus.Factory.CreateUsingRabbitMq());
                 cfg.AddRequestClient<SubmitOrder>();
+                cfg.AddRequestClient<CheckOrder>();
             });
 
             builder.Services.AddMassTransitHostedService();
