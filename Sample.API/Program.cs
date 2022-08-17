@@ -3,49 +3,48 @@ using MassTransit.Definition;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 using Sample.Contracts;
 
-namespace Sample.API
+namespace Sample.API;
+
+public class Program
 {
-    public class Program
+    public static void Main(string[] args)
     {
-        public static void Main(string[] args)
+        var builder = WebApplication.CreateBuilder(args);
+
+        builder.Services.TryAddSingleton(KebabCaseEndpointNameFormatter.Instance);
+
+        builder.Services.AddMassTransit(cfg =>
         {
-            var builder = WebApplication.CreateBuilder(args);
+            cfg.AddBus(provider => Bus.Factory.CreateUsingRabbitMq());
+            cfg.AddRequestClient<SubmitOrder>();
+            cfg.AddRequestClient<CheckOrder>();
+        });
 
-            builder.Services.TryAddSingleton(KebabCaseEndpointNameFormatter.Instance);
+        builder.Services.AddMassTransitHostedService();
 
-            builder.Services.AddMassTransit(cfg =>
-            {
-                cfg.AddBus(provider => Bus.Factory.CreateUsingRabbitMq());
-                cfg.AddRequestClient<SubmitOrder>();
-                cfg.AddRequestClient<CheckOrder>();
-            });
+        // Add services to the container.
 
-            builder.Services.AddMassTransitHostedService();
+        builder.Services.AddControllers();
+        // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
+        builder.Services.AddEndpointsApiExplorer();
+        builder.Services.AddSwaggerGen();
 
-            // Add services to the container.
+        var app = builder.Build();
 
-            builder.Services.AddControllers();
-            // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
-            builder.Services.AddEndpointsApiExplorer();
-            builder.Services.AddSwaggerGen();
-
-            var app = builder.Build();
-
-            // Configure the HTTP request pipeline.
-            if (app.Environment.IsDevelopment())
-            {
-                app.UseSwagger();
-                app.UseSwaggerUI();
-            }
-
-            app.UseHttpsRedirection();
-
-            app.UseAuthorization();
-
-
-            app.MapControllers();
-
-            app.Run();
+        // Configure the HTTP request pipeline.
+        if (app.Environment.IsDevelopment())
+        {
+            app.UseSwagger();
+            app.UseSwaggerUI();
         }
+
+        app.UseHttpsRedirection();
+
+        app.UseAuthorization();
+
+
+        app.MapControllers();
+
+        app.Run();
     }
 }

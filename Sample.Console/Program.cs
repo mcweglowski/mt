@@ -9,55 +9,54 @@ using Sample.Components.Consumers;
 using Sample.Components.StateMachines;
 using System.Diagnostics;
 
-namespace Sample.Service
+namespace Sample.Service;
+
+class Program
 {
-    class Program
+    static async Task Main(string[] args)
     {
-        static async Task Main(string[] args)
-        {
-            var isService = !(Debugger.IsAttached || args.Contains("--console"));
+        var isService = !(Debugger.IsAttached || args.Contains("--console"));
 
-            var builder = new HostBuilder()
-                .ConfigureAppConfiguration((hostingContext, config) =>
-                {
-                    config.AddJsonFile("appsettings.json", true);
-                    config.AddEnvironmentVariables();
+        var builder = new HostBuilder()
+            .ConfigureAppConfiguration((hostingContext, config) =>
+            {
+                config.AddJsonFile("appsettings.json", true);
+                config.AddEnvironmentVariables();
 
-                    if (args != null)
-                        config.AddCommandLine(args);
-                })
-                .ConfigureServices((hostingContext, services) =>
-                {
-                    services.TryAddSingleton(KebabCaseEndpointNameFormatter.Instance);
+                if (args != null)
+                    config.AddCommandLine(args);
+            })
+            .ConfigureServices((hostingContext, services) =>
+            {
+                services.TryAddSingleton(KebabCaseEndpointNameFormatter.Instance);
 
-                    services.AddMassTransit(cfg => {
-                        cfg.AddConsumersFromNamespaceContaining<SubmitOrderConsumer>();
-                        cfg.AddSagaStateMachine<OrderStateMachine, OrderState>(typeof(OrderStsteMachnieDefinition))
-                            .RedisRepository();
-                        cfg.AddBus(ConfigureBus);
-                    });
-
-                    services.AddHostedService<MassTransitConsoleHostedService>();
-                })
-                .ConfigureLogging((hostingContext, logging) => 
-                {                    
-                    logging.AddConfiguration(hostingContext.Configuration.GetSection("Logging"));
-                    logging.AddConsole();
+                services.AddMassTransit(cfg => {
+                    cfg.AddConsumersFromNamespaceContaining<SubmitOrderConsumer>();
+                    cfg.AddSagaStateMachine<OrderStateMachine, OrderState>(typeof(OrderStsteMachnieDefinition))
+                        .RedisRepository();
+                    cfg.AddBus(ConfigureBus);
                 });
 
-            if (isService)
-                await builder.UseWindowsService().Build().RunAsync();
-            else
-                await builder.RunConsoleAsync();
-        }
-
-        static IBusControl ConfigureBus(IBusRegistrationContext registrationContext)
-        {
-
-            return Bus.Factory.CreateUsingRabbitMq(cfg => 
-            {
-                cfg.ConfigureEndpoints(registrationContext);
+                services.AddHostedService<MassTransitConsoleHostedService>();
+            })
+            .ConfigureLogging((hostingContext, logging) => 
+            {                    
+                logging.AddConfiguration(hostingContext.Configuration.GetSection("Logging"));
+                logging.AddConsole();
             });
-        }
+
+        if (isService)
+            await builder.UseWindowsService().Build().RunAsync();
+        else
+            await builder.RunConsoleAsync();
+    }
+
+    static IBusControl ConfigureBus(IBusRegistrationContext registrationContext)
+    {
+
+        return Bus.Factory.CreateUsingRabbitMq(cfg => 
+        {
+            cfg.ConfigureEndpoints(registrationContext);
+        });
     }
 }

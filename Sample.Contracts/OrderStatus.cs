@@ -1,8 +1,7 @@
-﻿namespace Sample.Contracts
+﻿namespace Sample.Contracts;
+
+public interface OrderStatus
 {
-    public interface OrderStatus
-    {
-        Guid OrderId { get; }
-        string State { get; }
-    }
+    Guid OrderId { get; }
+    string State { get; }
 }

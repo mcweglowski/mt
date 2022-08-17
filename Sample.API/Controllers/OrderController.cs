@@ -2,89 +2,88 @@
 using Microsoft.AspNetCore.Mvc;
 using Sample.Contracts;
 
-namespace Sample.API.Controllers
+namespace Sample.API.Controllers;
+
+[ApiController]
+[Route("[controller]")]
+public class OrderController : ControllerBase
 {
-    [ApiController]
-    [Route("[controller]")]
-    public class OrderController : ControllerBase
+    private readonly ILogger<OrderController> _logger;
+    private readonly IRequestClient<SubmitOrder> _submitOrderRequestClient;
+    private readonly ISendEndpointProvider _sendEndpointProvider;
+    private readonly IRequestClient<CheckOrder> _checkOrderRequestClient;
+
+    public OrderController(ILogger<OrderController> logger, 
+        IRequestClient<SubmitOrder> submitOrderRequestClient,
+        ISendEndpointProvider sendEndpointProvider,
+        IRequestClient<CheckOrder> checkOrderRequestClient)
     {
-        private readonly ILogger<OrderController> _logger;
-        private readonly IRequestClient<SubmitOrder> _submitOrderRequestClient;
-        private readonly ISendEndpointProvider _sendEndpointProvider;
-        private readonly IRequestClient<CheckOrder> _checkOrderRequestClient;
+        _logger = logger;
+        _submitOrderRequestClient = submitOrderRequestClient;
+        _sendEndpointProvider = sendEndpointProvider;
+        _checkOrderRequestClient = checkOrderRequestClient;
+    }
 
-        public OrderController(ILogger<OrderController> logger, 
-            IRequestClient<SubmitOrder> submitOrderRequestClient,
-            ISendEndpointProvider sendEndpointProvider,
-            IRequestClient<CheckOrder> checkOrderRequestClient)
+    [HttpGet]
+    public async Task<IActionResult> Get(Guid id)
+    {
+        var (status, notFound) = await _checkOrderRequestClient.GetResponse<OrderStatus, OrderNotFound>(new
         {
-            _logger = logger;
-            _submitOrderRequestClient = submitOrderRequestClient;
-            _sendEndpointProvider = sendEndpointProvider;
-            _checkOrderRequestClient = checkOrderRequestClient;
+            OrderId = id
+        });
+
+        if (status.IsCompletedSuccessfully)
+        {
+            var response = await status;
+            return Ok(response.Message);
         }
 
-        [HttpGet]
-        public async Task<IActionResult> Get(Guid id)
+        var responseNotFound = await notFound;
+        return NotFound(responseNotFound.Message);
+    }
+
+    [HttpPost()]
+    public async Task<IActionResult> Post(Guid id, string customerNumber)
+    {
+        _logger.LogDebug($"Submit order: {id}");
+        var (accepted, rejected) = await _submitOrderRequestClient.GetResponse<OrderSubmissionAccepted, OrderSubmissionRejected>(new
         {
-            var (status, notFound) = await _checkOrderRequestClient.GetResponse<OrderStatus, OrderNotFound>(new
-            {
-                OrderId = id
-            });
+            OrderId = id,
+            Timestamp = InVar.Timestamp,
+            CustomerNumber = customerNumber
+        });
 
-            if (status.IsCompletedSuccessfully)
-            {
-                var response = await status;
-                return Ok(response.Message);
-            }
-
-            var responseNotFound = await notFound;
-            return NotFound(responseNotFound.Message);
-        }
-
-        [HttpPost()]
-        public async Task<IActionResult> Post(Guid id, string customerNumber)
+        if (accepted.IsCompletedSuccessfully)
         {
-            _logger.LogDebug($"Submit order: {id}");
-            var (accepted, rejected) = await _submitOrderRequestClient.GetResponse<OrderSubmissionAccepted, OrderSubmissionRejected>(new
-            {
-                OrderId = id,
-                Timestamp = InVar.Timestamp,
-                CustomerNumber = customerNumber
-            });
+            _logger.LogDebug($"Order: {id} accepted");
 
-            if (accepted.IsCompletedSuccessfully)
-            {
-                _logger.LogDebug($"Order: {id} accepted");
-
-                var response = await accepted;
-                return Accepted(response);
-            }
-            else
-            {
-                _logger.LogDebug($"Order: {id} rejected");
-
-                var response = await rejected;
-
-                return BadRequest(response.Message);
-            }
+            var response = await accepted;
+            return Accepted(response);
         }
-
-        [HttpPut()]
-        public async Task<IActionResult> Put(Guid id, string customerNumber)
+        else
         {
-            var endpoint = await _sendEndpointProvider.GetSendEndpoint(new Uri("exchange:submit-order"));
+            _logger.LogDebug($"Order: {id} rejected");
 
-            _logger.LogDebug($"Submit order: {id}");
+            var response = await rejected;
 
-            await endpoint.Send<SubmitOrder>(new
-            {
-                OrderId = id,
-                Timestamp = InVar.Timestamp,
-                CustomerNumber = customerNumber
-            });
-
-            return Accepted();
+            return BadRequest(response.Message);
         }
+    }
+
+    [HttpPut()]
+    public async Task<IActionResult> Put(Guid id, string customerNumber)
+    {
+        var endpoint = await _sendEndpointProvider.GetSendEndpoint(new Uri("exchange:submit-order"));
+
+        _logger.LogDebug($"Submit order: {id}");
+
+        await endpoint.Send<SubmitOrder>(new
+        {
+            OrderId = id,
+            Timestamp = InVar.Timestamp,
+            CustomerNumber = customerNumber
+        });
+
+        return Accepted();
     }
 }

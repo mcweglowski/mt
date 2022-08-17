@@ -1,24 +1,23 @@
-﻿namespace Sample.Contracts
+﻿namespace Sample.Contracts;
+
+public interface SubmitOrder
 {
-    public interface SubmitOrder
-    {
-        Guid OrderId { get; }
-        DateTime Timestamp { get; }
-        string CustomerNumber { get; }
-    }
+    Guid OrderId { get; }
+    DateTime Timestamp { get; }
+    string CustomerNumber { get; }
+}
 
-    public interface OrderSubmissionAccepted
-    {
-        Guid OrderId { get; }
-        DateTime Timestamp { get;}
-        string CustomerNumber { get; }
-    }
+public interface OrderSubmissionAccepted
+{
+    Guid OrderId { get; }
+    DateTime Timestamp { get;}
+    string CustomerNumber { get; }
+}
 
-    public interface OrderSubmissionRejected
-    {
-        Guid OrderId { get; }
-        DateTime Timestamp { get; }
-        string CustomerNumber { get; }
-        string Reason { get; }
-    }
+public interface OrderSubmissionRejected
+{
+    Guid OrderId { get; }
+    DateTime Timestamp { get; }
+    string CustomerNumber { get; }
+    string Reason { get; }
 }

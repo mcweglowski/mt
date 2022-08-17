@@ -1,25 +1,24 @@
 ﻿using MassTransit;
 using Microsoft.Extensions.Hosting;
 
-namespace Sample.Service
+namespace Sample.Service;
+
+public class MassTransitConsoleHostedService : IHostedService
 {
-    public class MassTransitConsoleHostedService : IHostedService
+    readonly IBusControl _bus;
+
+    public MassTransitConsoleHostedService(IBusControl bus)
     {
-        readonly IBusControl _bus;
+        _bus = bus;
+    }
 
-        public MassTransitConsoleHostedService(IBusControl bus)
-        {
-            _bus = bus;
-        }
+    public async Task StartAsync(CancellationToken cancellationToken)
+    {
+        await _bus.StartAsync(cancellationToken).ConfigureAwait(false);
+    }
 
-        public async Task StartAsync(CancellationToken cancellationToken)
-        {
-            await _bus.StartAsync(cancellationToken).ConfigureAwait(false);
-        }
-
-        public Task StopAsync(CancellationToken cancellationToken)
-        {
-            return _bus.StopAsync(cancellationToken);
-        }
+    public Task StopAsync(CancellationToken cancellationToken)
+    {
+        return _bus.StopAsync(cancellationToken);
     }
 }
