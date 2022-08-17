@@ -1,4 +1,7 @@
-﻿using MassTransit;
+﻿using GreenPipes;
+using MassTransit;
+using MassTransit.ConsumeConfigurators;
+using MassTransit.Definition;
 using Microsoft.Extensions.Logging;
 using Sample.Contracts;
 

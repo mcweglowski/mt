@@ -1,14 +1,7 @@
 ﻿using Automatonymous;
-using GreenPipes;
 using MassTransit;
-using MassTransit.Definition;
 using MassTransit.RedisIntegration;
 using Sample.Contracts;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Sample.Components.StateMachines
 {
@@ -68,25 +61,5 @@ namespace Sample.Components.StateMachines
 
         public Event<OrderSubmitted> OrderSubmitted { get; private set; }
         public Event<CheckOrder> CheckOrder { get; private set; }
-    }
-
-    public class OrderState : SagaStateMachineInstance,
-        IVersionedSaga
-    {
-        public Guid CorrelationId { get; set; }
-        public string CurrentState { get; set; }
-        public string CustomerNumber { get; set; }
-        public DateTime? SubmitDate { get; set; }
-        public DateTime? Updated { get; set; }
-        public int Version { get; set; }
-    }
-
-    public class OrderStsteMachnieDefinition : SagaDefinition<OrderState>
-    {
-        protected override void ConfigureSaga(IReceiveEndpointConfigurator endpointConfigurator, ISagaConfigurator<OrderState> sagaConfigurator)
-        {
-            endpointConfigurator.UseMessageRetry(r => r.Intervals(500, 5000, 10000));
-            endpointConfigurator.UseInMemoryOutbox();
-        }
     }
 }
