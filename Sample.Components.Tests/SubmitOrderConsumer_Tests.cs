@@ -1,9 +1,6 @@
-using MassTransit;
-using MassTransit.Testing;
 using Microsoft.Extensions.Logging;
 using Moq;
 using Sample.Components.Consumers;
-using Sample.Contracts;
 
 namespace Sample.Components.Tests;
 
@@ -12,7 +9,7 @@ public class when_an_order_request_is_consumed_tests
     private readonly Mock<ILogger<SubmitOrderConsumer>> _logger = new Mock<ILogger<SubmitOrderConsumer>>();
 
     [Fact]
-    public async Task should_response_with_acceptance_if_ok()
+    public async Task should_respond_with_acceptance_if_ok()
     {
         var harness = new InMemoryTestHarness();
         var consumer = harness.Consumer<SubmitOrderConsumer>(() => new SubmitOrderConsumer(_logger.Object));
@@ -44,7 +41,7 @@ public class when_an_order_request_is_consumed_tests
 
 
     [Fact]
-    public async Task should_response_with_rejected_if_test()
+    public async Task should_respond_with_rejected_if_test()
     {
         var harness = new InMemoryTestHarness();
         var consumer = harness.Consumer<SubmitOrderConsumer>(() => new SubmitOrderConsumer(_logger.Object));
