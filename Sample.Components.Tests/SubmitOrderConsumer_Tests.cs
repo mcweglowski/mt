@@ -105,6 +105,36 @@ public class when_an_order_request_is_consumed_tests
     }
 
     [Fact]
+    public async Task should_not_publish_order_submitted_event_when_rejected()
+    {
+        var harness = new InMemoryTestHarness { TestTimeout = TimeSpan.FromSeconds(5) };
+        var consumer = harness.Consumer<SubmitOrderConsumer>(() => new SubmitOrderConsumer(_logger.Object));
+
+        await harness.Start();
+
+        try
+        {
+            var orderId = NewId.NextGuid();
+
+            await harness.InputQueueSendEndpoint.Send<SubmitOrder>(new
+            {
+                OrderId = orderId,
+                Timestamp = InVar.Timestamp,
+                CustomerNumber = "TEST12345"
+            });
+
+            Assert.True(consumer.Consumed.Select<SubmitOrder>().Any());
+
+            Assert.False(harness.Published.Select<OrderSubmitted>().Any());
+        }
+        finally
+        {
+            await harness.Stop();
+        }
+    }
+
+
+    [Fact]
     public async Task should_publish_order_submitted_event()
     {
         var harness = new InMemoryTestHarness();
