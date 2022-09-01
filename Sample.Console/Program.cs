@@ -33,7 +33,11 @@ class Program
                 services.AddMassTransit(cfg => {
                     cfg.AddConsumersFromNamespaceContaining<SubmitOrderConsumer>();
                     cfg.AddSagaStateMachine<OrderStateMachine, OrderState>(typeof(OrderStsteMachnieDefinition))
-                        .RedisRepository();
+                        .MongoDbRepository(r =>
+                        {
+                            r.Connection = "mongodb://localhost:27017";
+                            r.DatabaseName = "orders";
+                        });
                     cfg.AddBus(ConfigureBus);
                 });
 

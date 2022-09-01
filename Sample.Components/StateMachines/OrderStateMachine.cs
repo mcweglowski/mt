@@ -20,6 +20,7 @@ public class OrderStateMachine : MassTransitStateMachine<OrderState>
                     }
                 }));
             });
+        Event(() => AccountClosed, x => x.CorrelateBy((saga, context) => saga.CustomerNumber == context.Message.CustomerNumber));
 
         InstanceState(x => x.CurrentState);
 
@@ -35,7 +36,9 @@ public class OrderStateMachine : MassTransitStateMachine<OrderState>
             );
 
         During(Submitted, 
-            Ignore(OrderSubmitted));
+            Ignore(OrderSubmitted),
+            When(AccountClosed)
+                .TransitionTo(Canceled));
 
         DuringAny(
             When(CheckOrder)
@@ -57,7 +60,9 @@ public class OrderStateMachine : MassTransitStateMachine<OrderState>
     }
 
     public State Submitted { get; private set; }
+    public State Canceled { get; private set; }
 
     public Event<OrderSubmitted> OrderSubmitted { get; private set; }
     public Event<CheckOrder> CheckOrder { get; private set; }
+    public Event<CustomerAccountClosed> AccountClosed { get; private set; }
 }

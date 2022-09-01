@@ -1,11 +1,13 @@
 ﻿using Automatonymous;
-using MassTransit.RedisIntegration;
+using MassTransit.MongoDbIntegration.Saga;
+using MongoDB.Bson.Serialization.Attributes;
 
 namespace Sample.Components.StateMachines;
 
 public class OrderState : SagaStateMachineInstance,
     IVersionedSaga
 {
+    [BsonId]
     public Guid CorrelationId { get; set; }
     public string CurrentState { get; set; }
     public string CustomerNumber { get; set; }

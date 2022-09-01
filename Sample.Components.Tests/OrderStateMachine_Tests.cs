@@ -82,4 +82,49 @@ public class Submitting_an_order_Tests
             await harness.Stop();
         }
     }
+
+    [Fact]
+    public async Task should_cancel_when_customer_account_closed()
+    {
+        var expectedCustomerNumber = "12345";
+
+        var orderStateMachine = new OrderStateMachine();
+
+        var harness = new InMemoryTestHarness();
+        var saga = harness.StateMachineSaga<OrderState, OrderStateMachine>(orderStateMachine);
+
+        await harness.Start();
+
+        try
+        {
+            var orderId = NewId.NextGuid();
+
+            await harness.Bus.Publish<OrderSubmitted>(new
+            {
+                OrderId = orderId,
+                Timestamp = InVar.Timestamp,
+                CustomerNumber = expectedCustomerNumber,
+            });
+
+            // check if there is a saga created that matches given orderId
+            Assert.True(saga.Created.Select(x => x.CorrelationId == orderId).Any());
+
+            var instanceId = await saga.Exists(orderId, x => x.Submitted);
+            Assert.NotNull(instanceId);
+
+            await harness.Bus.Publish<CustomerAccountClosed>(new
+            {
+                CustomerId = InVar.Id,
+                CustomerNumber = expectedCustomerNumber
+            });
+
+            instanceId = await saga.Exists(orderId, x => x.Canceled);
+            Assert.NotNull(instanceId);
+
+        }
+        finally
+        {
+            await harness.Stop();
+        }
+    }
 }
